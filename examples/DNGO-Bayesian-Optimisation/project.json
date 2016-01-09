@@ -1,0 +1,10 @@
+{
+  "<Project ID>": {
+    "cwd": "./examples/DNGO-Bayesian-Optimisation",
+    "command": "th",
+    "args": ["hartmann6.py"],
+    "options": "single-dash",
+    "capacity": "0.1",
+    "results": "./examples/DNGO-Bayesian-Optimisation"
+  }
+}
