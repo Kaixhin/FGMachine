@@ -11,6 +11,7 @@ This example has been adapted from the [DNGO demo](https://github.com/j-wilson/b
 - [Torch7](http://torch.ch/)
 - [gpTorch7](https://github.com/j-wilson/gpTorch7)
 - [bot7](https://github.com/j-wilson/bot7)
+- [LuaSocket](http://w3.impa.br/~diego/software/luasocket/)
 
 ## Instructions
 
