@@ -29,7 +29,7 @@
     "continuation-local-storage": "^3.1.7",
     "cors": "^2.7.1",
     "dotenv": "^2.0.0",
-    "express": "^4.13.4",
+    "express": "^5.0.0-alpha.2",
     "lodash": "^4.11.2",
     "morgan": "^1.7.0",
     "mz": "^2.4.0",

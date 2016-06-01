@@ -164,8 +164,7 @@ app.put("/projects", jsonParser, cors({origin: process.env.FGLAB_URL}), (req, re
 app.get("/projects/:id/capacity", (req, res) => {
   var capacity = getCapacity(req.params.id);
   if (capacity === 0) {
-    res.status(501);
-    res.send({error: "No capacity available"});
+    res.status(501).send({error: "No capacity available"});
   } else {
     res.send({capacity: capacity, address: specs.address, _id: specs._id});
   }
@@ -175,8 +174,7 @@ app.get("/projects/:id/capacity", (req, res) => {
 app.post("/projects/:id", jsonParser, (req, res) => {
   // Check if capacity still available
   if (getCapacity(req.params.id) === 0) {
-    res.status(501);
-    return res.send({error: "No capacity available"});
+    return res.status(501).send({error: "No capacity available"});
   }
 
   // Process args
