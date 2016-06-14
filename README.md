@@ -35,7 +35,7 @@ Run `node machine` (or `npm start`) to start FGMachine. On the first run it will
 
 **Note: If you use a virtual environment, e.g. `virtualenv`, activate the environment before running `node machine`.**
 
-To re-register, delete `specs.json` before running FGMachine again.
+**Note: If you delete your machine in FGLab, delete `specs.json` before running FGMachine again to re-register.**
 
 To update, run `npm run update`.
 
