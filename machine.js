@@ -294,6 +294,9 @@ app.post("/projects/:id", jsonParser, (req, res) => {
         .catch((err) => {
           console.log(err);
         });
+      } else {
+        // Close experiments folder watcher
+        topLevelWatcher.close();
       }
     }, 10000);
 
