@@ -206,6 +206,44 @@ app.post("/projects/:id", jsonParser, (req, res) => {
     args[args.length - 1] = args[args.length - 1] + "(" + functionParams  + ");";
   }
 
+  // List of file promises (to make sure all files are uploaded before removing results folder)
+  var filesP = [];
+  // Results-sending function for JSON
+  var sendJSONResults = function(results) {
+    return rp({uri: process.env.FGLAB_URL + "/api/v1/experiments/" + experimentId, method: "PUT", json: JSON.parse(results), gzip: true});
+  };
+  // Results-sending function for other files
+  var sendFileResults = function(filename) {
+    // Create form data
+    var formData = {_files: []};
+    // Add file
+    formData._files.push(fs.createReadStream(filename));
+    return rp({uri: process.env.FGLAB_URL + "/api/v1/experiments/" + experimentId + "/files", method: "PUT", formData: formData, gzip: true});
+  };
+
+  // Watch experiments folder
+  var watcher;
+  var resultsDir = path.join(project.results, experimentId);
+  var topLevelWatcher = chokidar.watch(project.results, {ignorePermissionErrors: true, ignoreInitial: true, depth: 1}).on("addDir", topLevelPath => {
+    if (topLevelPath.indexOf(experimentId) > -1) {
+      // Watch experiment folder
+      watcher = chokidar.watch(resultsDir, {awaitWriteFinish: true}).on("all", (event, experimentPath) => {
+        if (event === "add" || event === "change") {
+           if (experimentPath.match(/\.json$/)) {
+            // Process JSON files
+            filesP.push(fs.readFile(experimentPath, "utf-8").then(sendJSONResults));
+          } else {
+            // Store filenames for other files
+            filesP.push(sendFileResults(experimentPath));
+          }     
+        }
+      });
+
+      // Close experiments folder watcher
+      topLevelWatcher.close();
+    }
+  });
+
   // Spawn experiment
   var experiment = spawn(project.command, args, {cwd: project.cwd})
   // Catch spawning errors
@@ -231,34 +269,6 @@ app.post("/projects/:id", jsonParser, (req, res) => {
     console.log("Error: " + data.toString());
   });
 
-  // List of file promises (to make sure all files are uploaded before removing results folder)
-  var filesP = [];
-  // Results-sending function for JSON
-  var sendJSONResults = function(results) {
-    return rp({uri: process.env.FGLAB_URL + "/api/v1/experiments/" + experimentId, method: "PUT", json: JSON.parse(results), gzip: true});
-  };
-  // Results-sending function for other files
-  var sendFileResults = function(filename) {
-    // Create form data
-    var formData = {_files: []};
-    // Add file
-    formData._files.push(fs.createReadStream(filename));
-    return rp({uri: process.env.FGLAB_URL + "/api/v1/experiments/" + experimentId + "/files", method: "PUT", formData: formData, gzip: true});
-  };
-  // Watch for experiment folder
-  var resultsDir = path.join(project.results, experimentId);
-  var watcher = chokidar.watch(resultsDir, {awaitWriteFinish: true}).on("all", (event, path) => {
-    if (event === "add" || event === "change") {
-       if (path.match(/\.json$/)) {
-        // Process JSON files
-        filesP.push(fs.readFile(path, "utf-8").then(sendJSONResults));
-      } else {
-        // Store filenames for other files
-        filesP.push(sendFileResults(path));
-      }     
-    }
-  });
-
   // Processes results
   experiment.on("exit", (exitCode) => {
     maxCapacity += project.capacity; // Add back capacity
@@ -270,19 +280,21 @@ app.post("/projects/:id", jsonParser, (req, res) => {
 
     // Finish watching for files after 10s
     setTimeout(() => {
-      // Close experiment folder watcher
-      watcher.close();
-     // Confirm upload and delete results folder to save space
-      Promise.all(filesP).then(function() {
-        rimraf(resultsDir, (err) => {
-          if (err) {
-            console.log(err);
-          }
+      if (watcher) {
+        // Close experiment folder watcher
+        watcher.close();
+       // Confirm upload and delete results folder to save space
+        Promise.all(filesP).then(function() {
+          rimraf(resultsDir, (err) => {
+            if (err) {
+              console.log(err);
+            }
+          });
+        })
+        .catch((err) => {
+          console.log(err);
         });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      }
     }, 10000);
 
     // Delete experiment
