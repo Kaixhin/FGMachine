@@ -77,6 +77,8 @@ After a project has been created on FGLab, a corresponding *project implementati
 
 `capacity` is a number between in the range 0-1 (inclusive) that represents (the inverse of) the amount of instances of the program the FGMachine host system can run in parallel (as a heuristic); for example a `capacity` of 0.5 indicates that the host is only capable of running 2 instances of the program at once. `results` is the directory in which the experiment results must be written into (see below for more details). `results` can either be an absolute path, or a relative path, in which case it it relative to the FGMachine directory.
 
+If you receive a "No machine capacity available" error message when submitting a new experiment, which can occur erroneously (for example, if experiments crash), then you can reset a machine's capacity on the machine's page in FGLab.
+
 FGMachine automatically reloads the `projects.json` file when it is changed.
 
 ### Experiments
