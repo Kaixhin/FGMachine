@@ -254,7 +254,7 @@ app.post("/projects/:id", jsonParser, (req, res) => {
     console.log("Error: Experiment could not start - please check projects.json");
   });
   
-  maxCapacity -= project.capacity; // Reduce capacity of machine
+  maxCapacity = Math.max(maxCapacity - project.capacity, 0); // Reduce capacity of machine
   rp({uri: process.env.FGLAB_URL + "/api/v1/experiments/" + experimentId + "/started", method: "PUT", data: null}); // Set started
   // Save experiment
   experiments[experimentId] = experiment;
@@ -271,7 +271,7 @@ app.post("/projects/:id", jsonParser, (req, res) => {
 
   // Processes results
   experiment.on("exit", (exitCode) => {
-    maxCapacity += project.capacity; // Add back capacity
+    maxCapacity = Math.min(maxCapacity + project.capacity, 1); // Add back capacity
 
     // Send status
     var status = (exitCode === 0) ? "success" : "fail";
@@ -314,6 +314,14 @@ app.post("/experiments/:id/kill", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow CORS
   res.send(JSON.stringify({status: "killed"}));
 });
+
+// Resets capacity to 1
+app.post("/capacity/reset", (req, res) => {
+  maxCapacity = 1;
+  res.setHeader("Access-Control-Allow-Origin", "*"); // Allow CORS
+  res.sendStatus(200);
+});
+
 
 /* HTTP Server */
 var server = http.createServer(app); // Create HTTP server
