@@ -62,7 +62,7 @@ After a project has been created on FGLab, a corresponding *project implementati
   "args": "<first command line options (e.g. train)>",
   "options": "<command line options style for options (e.g. double-dash)>",
   "capacity": "<machine capacity needed (as a fraction) (e.g. 0.5)>",
-  "results": "<results directory (without experiment ID) (e.g. results)>"
+  "results": "<absolute path to results directory (without experiment ID) (e.g. results)>"
 }
 ```
 
@@ -80,6 +80,19 @@ After a project has been created on FGLab, a corresponding *project implementati
 If you receive a "No machine capacity available" error message when submitting a new experiment, which can occur erroneously (for example, if experiments crash), then you can reset a machine's capacity on the machine's page in FGLab.
 
 FGMachine automatically reloads the `projects.json` file when it is changed.
+
+#### GPU capacity support
+
+In order to handle projects, which require GPUs to perform a task, you need to add two parameters for each project in `projects.json` file:
+
+```json
+{
+  "gpu_capacity": "<gpu capacity needed (as a fraction of one GPU capacity (e.g. 0.5)>",
+  "gpu_command": "<option to pass to script to identify card number (e.g. -gpu)>",
+}
+```
+
+Note that gpu_capacity represents (the inverse of) instances of the program the FGMachine host system can run on one GPU; for example a machine with 4 GPUs, will be able to run 8 instances of the program with capacity 0.1 and gpu_capacity 0.5.
 
 ### Experiments
 
