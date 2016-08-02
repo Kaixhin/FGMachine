@@ -29,11 +29,11 @@
     "cors": "^2.7.1",
     "dotenv": "^2.0.0",
     "express": "^5.0.0-alpha.2",
-    "lodash": "^4.14.0",
+    "lodash": "^4.14.1",
     "morgan": "^1.7.0",
     "mz": "^2.4.0",
     "request": "^2.74.0",
-    "request-promise": "^4.0.2",
+    "request-promise": "^4.1.0",
     "rimraf": "^2.5.4",
     "ws": "^1.1.1"
   },
@@ -43,7 +43,7 @@
     "gulp": "^3.9.1",
     "gulp-bump": "^2.2.0",
     "gulp-conventional-changelog": "^1.1.0",
-    "gulp-git": "^1.9.0",
+    "gulp-git": "^1.11.0",
     "gulp-util": "^3.0.7",
     "minimist": "^1.2.0",
     "run-sequence": "^1.2.2"
