@@ -155,6 +155,7 @@ var getCapacity = function(projId) {
       if (('gpus' in specs) && (specs.gpus.length > 0)) {
         var gpu_available_capacity = GPUsCapacity.reduce((a, b) => a + b, 0);
         var gpu_capacity = Math.floor (gpu_available_capacity / projects[projId].gpu_capacity);
+        capacity = Math.min (gpu_capacity, capacity);
       }
       else {
         capacity = 0;
