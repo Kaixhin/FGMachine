@@ -139,7 +139,7 @@ chokidar.watch("projects.json").on("change", () => {
 /* Global max capacity */
 var maxCapacity = 1;
 var GPUsCapacity = [];
-var GPUCapacity = 1;
+var GPUCapacity = 0;
 
 // Checks if GPU resources are required
 var isGPURequired = function (projId) {
