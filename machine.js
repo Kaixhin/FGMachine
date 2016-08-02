@@ -60,7 +60,8 @@ fs.readFile("specs.json", "utf-8")
   // GPU models
   if (os.platform() === "linux") {
     var lspci = spawnSync("lspci", []);
-    var grep = spawnSync("grep", ["-i", "vga"], {input: lspci.stdout});
+    var grep_vga = spawnSync("grep", ["-i", "vga"], {input: lspci.stdout});
+    var grep = spawnSync("grep", ["-i", "nvidia"], {input: grep_vga.stdout});
     var gpuStrings = grep.stdout.toString().split("\n");
     for (var i = 0; i < gpuStrings.length - 1; i++) {
       specs.gpus.push(gpuStrings[i].replace(/.*controller: /g, ""));
@@ -92,6 +93,14 @@ fs.readFile("specs.json", "utf-8")
   .catch((err) => {
     console.log(err);
   });
+})
+.then(() => {
+	if ('gpus' in specs) {
+	  for (var i = 0; i < specs.gpus.length; i++) {
+	    GPUsCapacity.push(1);
+	  }
+	  GPUCapacity = GPUsCapacity.reduce((a, b) => a + b, 0);
+	}
 });
 
 /* Project specifications */
@@ -129,14 +138,33 @@ chokidar.watch("projects.json").on("change", () => {
 
 /* Global max capacity */
 var maxCapacity = 1;
+var GPUsCapacity = [];
+var GPUCapacity = 0;
+
+// Checks if GPU resources are required
+var isGPURequired = function (projId) {
+  return "gpu_capacity" in projects[projId];
+};
 
 var getCapacity = function(projId) {
   var capacity = 0;
   if (projects[projId]) {
     capacity = Math.floor(maxCapacity / projects[projId].capacity);
+    if (isGPURequired(projId)) {
+      // if we have any GPUs 
+      if (('gpus' in specs) && (specs.gpus.length > 0)) {
+        var gpu_available_capacity = GPUsCapacity.reduce((a, b) => a + b, 0);
+        var gpu_capacity = Math.floor (gpu_available_capacity / projects[projId].gpu_capacity);
+        capacity = Math.min (gpu_capacity, capacity);
+      }
+      else {
+        capacity = 0;
+      }
+    }
   }
   return capacity;
 };
+
 
 /* Routes */
 // Updates projects.json with new project ID
@@ -166,19 +194,22 @@ app.get("/projects/:id/capacity", (req, res) => {
   if (capacity === 0) {
     res.status(501).send({error: "No capacity available"});
   } else {
-    res.send({capacity: capacity, address: specs.address, _id: specs._id});
+      res.send({capacity: capacity, address: specs.address, _id: specs._id});
   }
 });
 
 // Starts experiment
 app.post("/projects/:id", jsonParser, (req, res) => {
   // Check if capacity still available
+  var gpu_required = isGPURequired(req.params.id);
+
   if (getCapacity(req.params.id) === 0) {
     return res.status(501).send({error: "No capacity available"});
   }
 
   // Process args
   var experimentId = req.body._id;
+  var assignedGPUId = 0;
   var project = projects[req.params.id];
   var args = [];
   for (var i = 0; i < project.args.length; i++) {
@@ -205,6 +236,8 @@ app.post("/projects/:id", jsonParser, (req, res) => {
     functionParams = functionParams.toString().replace(/\"/g, "'"); // Replace " with '
     args[args.length - 1] = args[args.length - 1] + "(" + functionParams  + ");";
   }
+
+
 
   // List of file promises (to make sure all files are uploaded before removing results folder)
   var filesP = [];
@@ -245,6 +278,20 @@ app.post("/projects/:id", jsonParser, (req, res) => {
   });
 
   // Spawn experiment
+  // Control gpu capacity
+  if (gpu_required) {
+    var free_GPU_id = 0;
+    for (;free_GPU_id < specs.gpus.length; free_GPU_id++) {
+      if (GPUsCapacity[free_GPU_id] >= project.gpu_capacity) 
+        break;
+    }
+    GPUsCapacity[free_GPU_id] = Math.max(GPUsCapacity[free_GPU_id] - project.gpu_capacity, 0); 
+    assignedGPUId = free_GPU_id;
+
+    // Setting up command
+    args.push(project.gpu_command);
+    args.push(free_GPU_id);
+  }
   var experiment = spawn(project.command, args, {cwd: project.cwd})
   // Catch spawning errors
   .on("error", () => {
@@ -272,6 +319,9 @@ app.post("/projects/:id", jsonParser, (req, res) => {
   // Processes results
   experiment.on("exit", (exitCode) => {
     maxCapacity = Math.min(maxCapacity + project.capacity, 1); // Add back capacity
+    if (gpu_required) {
+      GPUsCapacity[assignedGPUId] = Math.min(GPUsCapacity[assignedGPUId] + project.gpu_capacity, 1); 
+    }
 
     // Send status
     var status = (exitCode === 0) ? "success" : "fail";
@@ -318,6 +368,9 @@ app.post("/experiments/:id/kill", (req, res) => {
 // Resets capacity to 1
 app.post("/capacity/reset", (req, res) => {
   maxCapacity = 1;
+  for (var i = 0; i < specs.gpus.length; i++) {
+    GPUsCapacity.push(1);
+  }
   res.setHeader("Access-Control-Allow-Origin", "*"); // Allow CORS
   res.sendStatus(200);
 });
