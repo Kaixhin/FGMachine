@@ -102,7 +102,7 @@ In order to handle projects, which require GPUs to perform a task, you need to a
 
 Note that `gpu_capacity` represents (the inverse of) instances of the program the FGMachine host system can run on one GPU; for example a machine with 4 GPUs will be able to run 8 instances of the program with `capacity` 0.1 and `gpu_capacity` 0.5. However, if the `capacity` was 0.25 in the previous example, the machine would only be able to run 4 instances of the program.
 
-`gpu_capacity` automatically assigns a GPU for experiments, which makes it easier to run batch experiments. For manual control, it is recommended to use a GPU flag as part of the experiment hyperparameters in the project schema.
+`gpu_capacity` automatically assigns a GPU for experiments, which makes it easier to run batch experiments. Note that like `nvidia-smi`, GPU IDs passed via `gpu-command` are **0-indexed**. For manual control, it is recommended to use a GPU flag as part of the experiment hyperparameters in the project schema.
 
 ### Experiments
 
