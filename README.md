@@ -47,13 +47,15 @@ Start a [FGLab container](https://hub.docker.com/r/kaixhin/fglab/) and link it t
 sudo docker run -d --name fgmachine -h $(hostname) -v /var/run/docker.sock:/var/run/docker.sock -e FGLAB_URL=<FGLab URL> -e FGMACHINE_URL=<FGMachine URL> -p 5081:5081 kaixhin/fgmachine
 ```
 
-The `FGLab URL` will be the address of the host running FGLab, including port 5080 - note that `localhost` will not work but the local network IP/hostname should. The `FGMachine URL` will be the address of the current host (as accessible by FGLab), including port 5081. Docker's socket is passed to allow FGMachine to launch Docker containers itself. To launch [NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker) containers, use the following:
+The `FGLab URL` will be the address of the host running FGLab, including port 5080 - note that `localhost` will not work but the local network IP/hostname should. The `FGMachine URL` will be the address of the current host (as accessible by FGLab), including port 5081. Docker's socket is passed to allow FGMachine to launch Docker containers itself. Note that as these are *sibling* containers, volume mounts (`-v`) are relative to the host, not the FGMachine container.
+
+To launch [NVIDIA Docker](https://github.com/NVIDIA/nvidia-docker) containers, use the following:
 
 ```sh
 sudo docker run -d --name fgmachine -h $(hostname) -v /var/run/docker.sock:/var/run/docker.sock --net=host `curl -s localhost:3476/docker/cli` -e FGLAB_URL=<FGLab URL> -e FGMACHINE_URL=<FGMachine URL> -p 5081:5081 kaixhin/fgmachine
 ```
 
-Note that `--net=host` is passed to allow access to the NVIDIA Docker API. When launching a sibling container, `` `curl -s localhost:3476/docker/cli` `` will need to be added to `docker`'s arguments (do not use `nvidia-docker`).
+Note that `--net=host` is passed to allow access to the NVIDIA Docker API. When launching a sibling container, you will need to run `` `curl -s localhost:3476/docker/cli` `` and manually add the arguments to the project implementation in the container, with `docker` as the command (do not use `nvidia-docker`).
 
 ## Overview
 
