@@ -23,7 +23,7 @@ var WebSocketServer = require("ws").Server;
 /* App instantiation */
 var app = express();
 var jsonParser = bodyParser.json({limit: "50mb"}); // Parses application/json
-app.use(morgan("tiny")); // Log requests
+app.use(morgan("common")); // Log requests
 
 // Variables
 var specs = {};
