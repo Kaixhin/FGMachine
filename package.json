@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/Kaixhin/FGMachine",
   "dependencies": {
-    "bluebird": "^3.4.6",
+    "bluebird": "^3.4.7",
     "body-parser": "^1.15.2",
     "bytes": "^2.4.0",
     "chokidar": "^1.6.1",
