@@ -1,7 +1,7 @@
 /* Load configuration variables */
 
 // Local environment
-require("dotenv").config({silent: true});
+require("dotenv").config();
 
 // Docker environment
 if (process.env.FGLAB_PORT_5000_TCP_ADDR) {
