@@ -70,12 +70,13 @@ After a project has been created on FGLab, a corresponding *project implementati
   "command": "<program (e.g. caffe)>",
   "args": "<first command line options (e.g. train)>",
   "options": "<command line options style for options (e.g. double-dash)>",
+  "boolean": "<optional: only pass flag if true, mandatory: pass flag and true/false argument>",
   "capacity": "<machine capacity needed (as a fraction) (e.g. 0.5)>",
   "results": "<absolute path to results directory (without experiment ID) (e.g. results)>"
 }
 ```
 
-`cwd` is the working directory for the machine learning code. `cwd` can either be an absolute path, or a relative path, in which case it it relative to the FGMachine directory. `command` is the program/executable to be run. `args` is the first set of command line options to be sent to the program, prior to the experiment options. `options` processes the options in 4 different ways. For option settings: `{seed: 123, model: "cnn.v2", L2: true}`, exemplar methods would be as such:
+`cwd` is the working directory for the machine learning code. `cwd` can either be an absolute path, or a relative path, in which case it it relative to the FGMachine directory. `command` is the program/executable to be run. `args` is the first set of command line options to be sent to the program, prior to the experiment options. `options` processes the options in 4 different ways. For option settings: `{seed: 123, model: "cnn.v2", L2: true}`, exemplar methods would be as such (with `boolean` as `"mandatory"`):
 
 | `options`   | Program | Command Line [command] [args] [options]                                         |
 |-------------|---------|---------------------------------------------------------------------------------|
@@ -84,7 +85,7 @@ After a project has been created on FGLab, a corresponding *project implementati
 | double-dash | caffe   | caffe [args] --seed=123 --model=cnn.v2 --L2=true                                |
 | function    | matlab  | matlab [args w/o final arg] [final arg]\('seed',123,'model','cnn.v2','L2',true) |
 
-`capacity` is a number between in the range 0-1 (inclusive) that represents (the inverse of) the amount of instances of the program the FGMachine host system can run in parallel (as a heuristic); for example a `capacity` of 0.5 indicates that the host is only capable of running 2 instances of the program at once. `results` is the directory in which the experiment results must be written into (see below for more details). `results` can either be an absolute path, or a relative path, in which case it it relative to the FGMachine directory.
+`boolean` can be set to `"optional"` when boolean flags should be passed only when true, e.g., `-L2`, or set to `"mandatory"` if the value should always be passed, e.g., `-L2 true` and `-L2 false`. `capacity` is a number between in the range 0-1 (inclusive) that represents (the inverse of) the amount of instances of the program the FGMachine host system can run in parallel (as a heuristic); for example a `capacity` of 0.5 indicates that the host is only capable of running 2 instances of the program at once. `results` is the directory in which the experiment results must be written into (see below for more details). `results` can either be an absolute path, or a relative path, in which case it it relative to the FGMachine directory.
 
 If you receive a "No machine capacity available" error message when submitting a new experiment, which can occur erroneously (for example, if experiments crash), then you can reset a machine's capacity on the machine's page in FGLab.
 

@@ -4,6 +4,7 @@
     "command": "node",
     "args": ["rand.js", "-optParameter"],
     "options": "plain",
+    "boolean": "mandatory",
     "capacity": 0.9,
     "results": "./test/experiments"
   },
@@ -12,6 +13,7 @@
     "command": "matlab",
     "args": ["-nodisplay", "-r", "clustering"],
     "options": "function",
+    "boolean": "mandatory",
     "capacity": "0.3",
     "results": "./test"
   }

@@ -6,7 +6,7 @@ local cjson = require 'cjson'
 -- Command line arguments
 local cmd = torch.CmdLine()
 cmd:option('-_id', '123456789', 'Experiment ID')
-cmd:option('-cuda', 'false', 'Use CUDA') -- Torch CmdLine does not parse booleans properly
+cmd:option('-cuda', false, 'Use CUDA')
 cmd:option('-seed', 123, 'Random seed')
 cmd:option('-locationHiddenSize', 128, 'Output size of location "sensor"')
 cmd:option('-glimpsePatchSize', 8, 'Glimpse patch size')
@@ -25,12 +25,6 @@ cmd:option('-optimiser', 'sgd', 'Optimiser: sgd|rmsprop|adagrad|adadelta|adam')
 cmd:option('-momentum', 0.9, 'Momentum')
 cmd:option('-epochs', 1, 'Number of epochs')
 local opt = cmd:parse(arg)
--- Parse CUDA flag from string to boolean
-if opt.cuda == 'true' then
-  opt.cuda = true
-else
-  opt.cuda = false
-end
 
 -- Check if running in container
 if paths.filep('/.dockerinit') then

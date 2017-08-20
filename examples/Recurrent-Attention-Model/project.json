@@ -4,6 +4,7 @@
     "command": "th",
     "args": ["main.lua"],
     "options": "single-dash",
+    "boolean": "optional",
     "capacity": "1",
     "results": "./examples/Recurrent-Attention-Model"
   },
@@ -12,6 +13,7 @@
     "command": "docker",
     "args": ["run", "--rm", "-t", "-v", "<Absolute path to Recurrent-Attention-Model>:/data", "-w", "/data", "ram", "th", "main.lua"],
     "options": "single-dash",
+    "boolean": "optional",
     "capacity": "1",
     "results": "/data"
   }

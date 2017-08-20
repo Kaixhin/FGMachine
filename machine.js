@@ -69,9 +69,9 @@ fs.readFile("specs.json", "utf-8")
   } else if (os.platform() === "darwin") {
     var system_profiler = spawnSync("system_profiler", ["SPDisplaysDataType"]);
     var profilerStrings = system_profiler.stdout.toString().split("\n");
-    for (var i = 0; i < profilerStrings.length - 1; i++) {
-      if (profilerStrings[i].indexOf("Chipset Model:") > -1) {
-        specs.gpus.push(profilerStrings[i].replace(/Chipset Model: /g, ""));
+    for (var j = 0; j < profilerStrings.length - 1; j++) {
+      if (profilerStrings[j].indexOf("Chipset Model:") > -1) {
+        specs.gpus.push(profilerStrings[j].replace(/Chipset Model: /g, ""));
       }
     }
   }
@@ -177,6 +177,7 @@ app.put("/projects", jsonParser, cors({origin: process.env.FGLAB_URL}), (req, re
       command: "<command>",
       args: ["<arg>"],
       options: "<options>",
+      boolean: "optional",
       capacity: 1,
       results: "."
     };
@@ -217,17 +218,31 @@ app.post("/projects/:id", jsonParser, (req, res) => {
   // Command-line parsing
   var functionParams = [];
   for (var prop in options) {
-    if (project.options === "plain") {
-      args.push(prop);
-      args.push(options[prop]);
-    } else if (project.options === "single-dash") {
-      args.push("-" + prop);
-      args.push(options[prop]);
-    } else if (project.options === "double-dash") {
-      args.push("--" + prop + "=" + options[prop]);
-    } else if (project.options === "function") {
-      functionParams.push(JSON.stringify(prop));
-      functionParams.push(JSON.stringify(options[prop]));
+    // Do not pass even flag if argument is false and project.boolean is optional
+    if (!(typeof(options[prop]) === "boolean" && project.boolean === "optional" && !options[prop])) {
+      if (project.options === "plain") {
+        args.push(prop);
+        // Only pass flag if argument is true and project.boolean is optional
+        if (!(typeof(options[prop]) === "boolean" && project.boolean === "optional")) {
+          args.push(options[prop]);
+        }
+      } else if (project.options === "single-dash") {
+        args.push("-" + prop);
+        if (!(typeof(options[prop]) === "boolean" && project.boolean === "optional")) {
+          args.push(options[prop]);
+        }
+      } else if (project.options === "double-dash") {
+        if (!(typeof(options[prop]) === "boolean" && project.boolean === "optional")) {
+          args.push("--" + prop);
+        } else {
+          args.push("--" + prop + "=" + options[prop]);
+        }
+      } else if (project.options === "function") {
+        functionParams.push(JSON.stringify(prop));
+        if (!(typeof(options[prop]) === "boolean" && project.boolean === "optional")) {
+          functionParams.push(JSON.stringify(options[prop]));
+        }
+      }
     }
   }
   if (project.options === "function") {

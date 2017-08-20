@@ -4,6 +4,7 @@
     "command": "matlab",
     "args": ["-nodisplay", "-r", "clustering"],
     "options": "function",
+    "boolean": "mandatory",
     "capacity": "0.1",
     "results": "./examples/Calinski-Harabasz"
   }

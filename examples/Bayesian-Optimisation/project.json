@@ -4,6 +4,7 @@
     "command": "python",
     "args": ["branin_noisy.py"],
     "options": "double-dash",
+    "boolean": "mandatory",
     "capacity": "0.2",
     "results": "./examples/Bayesian-Optimisation"
   }
