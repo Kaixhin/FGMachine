@@ -232,7 +232,7 @@ app.post("/projects/:id", jsonParser, (req, res) => {
           args.push(options[prop]);
         }
       } else if (project.options === "double-dash") {
-        if (!(typeof(options[prop]) === "boolean" && project.boolean === "optional")) {
+        if (typeof(options[prop]) === "boolean" && project.boolean === "optional") {
           args.push("--" + prop);
         } else {
           args.push("--" + prop + "=" + options[prop]);
